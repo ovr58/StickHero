@@ -33,7 +33,7 @@
   <!--<link rel="apple-touch-icon" href=".png" />-->
   <!--<link rel="apple-touch-icon-precomposed" href=".png" />-->
 
-  <link rel="stylesheet" type="text/css" href="./StickHero/build/web-mobile/style.css"/>
+  <link rel="stylesheet" type="text/css" href="./build/web-mobile/style.css"/>
 
 </head>
 <body>
@@ -46,17 +46,17 @@
 
 <!-- Polyfills bundle. -->
 
-<script src="./StickHero/build/web-mobile/src/polyfills.bundle.js" charset="utf-8"> </script>
+<script src="./build/web-mobile/src/polyfills.bundle.js" charset="utf-8"> </script>
 
 
 <!-- SystemJS support. -->
-<script src="./StickHero/build/web-mobile/src/system.bundle.js" charset="utf-8"> </script>
+<script src="./build/web-mobile/src/system.bundle.js" charset="utf-8"> </script>
 
 <!-- Import map -->
-<script src="./StickHero/build/web-mobile/src/import-map.json" type="systemjs-importmap" charset="utf-8"> </script>
+<script src="./build/web-mobile/src/import-map.json" type="systemjs-importmap" charset="utf-8"> </script>
 
 <script>
-    System.import('./StickHero/build/web-mobile/index.js').catch(function(err) { console.error(err); })
+    System.import('./build/web-mobile/index.js').catch(function(err) { console.error(err); })
 </script>
 
 </body>
