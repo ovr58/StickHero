@@ -297,7 +297,7 @@
       "__id__": 13
     },
     "platformMinWidth": 50,
-    "platformMaxWidth": 300,
+    "platformMaxWidth": 200,
     "bonusPlatform": {
       "__id__": 2
     },

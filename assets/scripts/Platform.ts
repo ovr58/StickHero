@@ -15,7 +15,7 @@ export class Platform extends Component {
         displayName: 'Max Width', 
         tooltip: 'Maximum width of platform' 
     })
-    platformMaxWidth: number = 300;
+    platformMaxWidth: number = 200;
  
     @property({ 
         type: Node, 
@@ -54,7 +54,7 @@ export class Platform extends Component {
     initPlatform(positionX: number, initialWidth: number = 0, bonusPlatformVisible: boolean = true) {
         console.log("initPlatform", positionX, initialWidth);
  
-        this.node.setPosition(new Vec3(positionX, this.node.position.y, 0));
+        this.node.setPosition(new Vec3(positionX, -480, 0));
         const uiTransform = this.node.getComponent(UITransform)
         uiTransform.width = initialWidth > 0 ? initialWidth : this.platformMinWidth + Math.random() * (this.platformMaxWidth - this.platformMinWidth)
         
@@ -63,8 +63,6 @@ export class Platform extends Component {
         collider.size.height = uiTransform.height - 5
         collider.offset = new Vec2(0, -5)
 
-        console.log('COLLIDER - ', collider)
- 
         let bonusPlatformProportion = (uiTransform.width - this.platformMinWidth) / (this.platformMaxWidth - this.platformMinWidth)
         const bonusUITransform = this.bonusPlatform.getComponent(UITransform)
         bonusUITransform.width = this.bonusPlatformMinWidth + bonusPlatformProportion * (this.bonusPlatformMaxWidth - this.bonusPlatformMinWidth)

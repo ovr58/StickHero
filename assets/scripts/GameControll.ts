@@ -8,7 +8,7 @@ import { Stick } from './Stick'
 import { Hero } from './Hero'
 import { PlayerStates } from './States/PlayerStates'
 import { Platform } from './Platform'
-import { BonusItems } from './BonusItem'
+import { BonusItem } from './BonusItem'
 const { ccclass, property } = _decorator
 
 @ccclass('GameControll')
@@ -67,7 +67,7 @@ export class GameControll extends Component {
         displayName: 'Platform Prefab Width', 
         tooltip: 'Necessary for calculating initial platform position' 
     })
-    platformPrefabWidth: number = 300
+    platformPrefabWidth: number = 200
 
     @property({ 
         type: Prefab, 
@@ -146,7 +146,7 @@ export class GameControll extends Component {
     // Calculate the position for the next platform
     calculateNextPlatformPosition(): number {
         let offset = 50
-        const minDistance = 100
+        const minDistance = 150
         const maxDistance = view.getVisibleSize().width - this.platformPrefabWidth - offset
 
         let randomDistance = minDistance + Math.random() * (maxDistance - minDistance)
@@ -160,13 +160,14 @@ export class GameControll extends Component {
         const minOffset = 50 
         const platformTransform = this.platformNode.getComponent(UITransform) 
         const nextPlatformTransform = this.nextPlatformNode.getComponent(UITransform) 
-        if (platformTransform && nextPlatformTransform) { 
-            const currentPlatformRightEdge = this.futurePlatformPosition + platformTransform.width / 2 + minOffset 
-            const nextPlatformLeftEdge = targetXPlatform - nextPlatformTransform.width / 2 - minOffset 
+        const currentPlatformRightEdge = this.futurePlatformPosition + platformTransform.width / 2 + minOffset 
+        const nextPlatformLeftEdge = targetXPlatform - nextPlatformTransform.width / 2 - minOffset
+        if (platformTransform && nextPlatformTransform && (nextPlatformLeftEdge - currentPlatformRightEdge > 50)) { 
             const targetX = currentPlatformRightEdge + Math.random() * (nextPlatformLeftEdge - currentPlatformRightEdge) 
-            return targetX 
+            console.log('BONUS ITEM TARGET X - ', targetX)
+            return targetX
         } 
-        return 0 // Return a default value if the UITransform components are not found 
+        return null // Return a default value if the UITransform components are not found 
     }
 
     // Spawn the next platform
@@ -177,12 +178,12 @@ export class GameControll extends Component {
         this.nextPlatformNode = this.createPlatform(spawnX, 0, true)
         console.log('NEXTPLATFORM NODE - ', this.nextPlatformNode)
         const targetXBonusItem = this.calculateNextBonusItemPosition(targetXPlatform)
-
-        if(this.scoreController.score >= 2){ 
+        
+        if(this.scoreController.score >= 2 && targetXBonusItem){ 
             // If the score is less than or equal to 2, don't spawn a bonus item
             if(Math.random() < 0.8)  {
                 // 80% chance of spawning a SKU item
-                this.bonusItemNode = this.createBonusItem(spawnX)
+                this.bonusItemNode = this.createBonusItem(targetXBonusItem)
             }
         }
 
@@ -193,11 +194,12 @@ export class GameControll extends Component {
     createBonusItem(spawnX: number): Node {
         console.log('createBonusItem')
         let bonusItemInstance = instantiate(this.bonusItemPrefab)
-        bonusItemInstance.setSiblingIndex(996)
+        bonusItemInstance.setSiblingIndex(999)
         this.rootNode.addChild(bonusItemInstance)
-        const bonusItemComp = bonusItemInstance.getComponent(BonusItems)
+        const bonusItemComp = bonusItemInstance.getComponent(BonusItem)
         if (bonusItemComp) {
             bonusItemComp.initPlatform(spawnX)
+            console.log('BONUS ITEM - ', bonusItemComp)
         } else {
             console.error("Platform component is missing")
         }
@@ -213,9 +215,9 @@ export class GameControll extends Component {
             .to(0.5, { position: new Vec3(targetXPlatform, platformNode.position.y, 0) }) 
             .start() 
         }
-        if (bonusItemNode) {
+        if (bonusItemNode && targetXBonusItem) {
             tween(bonusItemNode) 
-            .to(0.25, { position: new Vec3(targetXBonusItem, bonusItemNode.position.y, 0) }) 
+            .to(0.25, { position: new Vec3(targetXBonusItem, -380, 0) }) 
             .start()
         }
 
@@ -226,7 +228,7 @@ export class GameControll extends Component {
         console.log("createPlatform", positionX, initialWidth)
 
         let platformInstance = instantiate(this.platformPrefab)
-        platformInstance.setSiblingIndex(999)
+        platformInstance.setSiblingIndex(996)
         this.rootNode.addChild(platformInstance)
         const platformComp = platformInstance.getComponent(Platform)
         if (platformComp) {
@@ -514,6 +516,7 @@ export class GameControll extends Component {
         this.stickNode = null
 
         if (this.bonusItemNode) {
+            console.log('BONUS ITEM NODE DESTROY!')
             this.bonusItemNode.destroy()
         }
 
@@ -558,7 +561,7 @@ export class GameControll extends Component {
         if (otherLayer.name === 'BonusItem') {
             console.log('Player collided with bonus item')
             if (this.GameState === GameStates.Running || this.GameState === GameStates.Idle) {
-                otherCollider.node.destroy()
+                this.scheduleOnce(() => { otherCollider.node.destroy() }, 0)
                 if (this.skuCounter) {
                     this.skuCounter.increaseSkuCount('Bonus')
                     this.playCollectBonus()
